@@ -53,7 +53,15 @@ body {
     font-weight: 500;
 }
 
-.id-card-wrapper { padding: 10px; }
+.id-card-wrapper { 
+    padding: 10px; 
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    /* Parent height adjusts based on scaled child */
+    height: calc(474px * var(--card-scale, 1)); 
+    overflow: visible;
+}
 
 .id-card {
     width: 720px;
@@ -68,6 +76,9 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    transform: scale(var(--card-scale, 1));
+    transform-origin: top center;
+    transition: transform 0.2s ease-out;
 }
 
 /* Very subtle security pattern inside the card with dots */
@@ -176,7 +187,12 @@ body {
     gap: 1.1rem 1.9rem;
 }
 
-.input-row { display: flex; flex-direction: column; gap: 0.4rem; }
+.input-row { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0.4rem; 
+    position: relative; 
+}
 .input-row.full { grid-column: span 2; }
 
 .input-row label {
@@ -213,6 +229,26 @@ body {
     font-weight: 500;
 }
 
+.info-grid input.invalid {
+    border-bottom-color: #ef4444 !important;
+}
+
+.error-msg {
+    color: #ef4444;
+    font-size: 0.65rem;
+    font-weight: 700;
+    position: absolute;
+    bottom: -1.0rem; /* Position below the input border */
+    left: 0;
+    display: none;
+    animation: fadeIn 0.15s ease-out;
+    white-space: nowrap;
+}
+
+.error-msg.show {
+    display: block;
+}
+
 .static-val {
     font-size: 1.25rem;
     font-weight: 700;
@@ -228,6 +264,7 @@ body {
 .text-accent { color: var(--accent); font-weight: 800; }
 
 .generating input { border-bottom-color: transparent !important; }
+.generating .id-card { transform: none !important; }
 
 /* Cert Block */
 .cert-block {
@@ -474,14 +511,154 @@ body {
 
 /* Ensure buttons are mobile-friendly */
 @media (max-width: 600px) {
+    body { padding: 1rem; }
+    
+    .app-container { gap: 1.5rem; }
+
+    .instructions p {
+        font-size: 0.85rem;
+        padding: 0.8rem;
+    }
+
     .button-group {
         flex-direction: column;
         width: 100%;
         gap: 0.8rem;
+        padding-bottom: 2rem;
     }
     .download-btn, .share-btn {
         width: 100%;
         justify-content: center;
+        padding: 1rem;
     }
 }
 
+
+/* Browser Guide Overlay */
+.guide-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(12px);
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.guide-overlay.show { display: flex; }
+
+.guide-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    border-radius: 28px;
+    padding: 2rem;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    transform: translateY(20px);
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { to { transform: translateY(0); } }
+
+.guide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guide-header h3 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--navy-main);
+}
+
+.close-guide {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.guide-body p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.step {
+    background: var(--bg-page);
+    padding: 1.2rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--border-light);
+}
+
+.step-icon {
+    background: var(--navy-main);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    flex-shrink: 0;
+}
+
+.step p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.step strong { color: var(--accent); }
+
+/* Hide guides based on platform later via JS if needed, or show both */
+.ios-guide, .android-guide { display: flex; }
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--navy-main);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.3);
+    z-index: 3000;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+@media (max-width: 480px) {
+    .guide-content { padding: 1.5rem; }
+    .toast { width: 90%; text-align: center; bottom: 1.5rem; }
+}

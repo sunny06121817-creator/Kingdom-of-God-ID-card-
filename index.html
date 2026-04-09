@@ -62,6 +62,7 @@
                             <div class="input-row">
                                 <label>REBIRTH DATE</label>
                                 <input type="text" id="dateInput" placeholder="MM/DD/YYYY" autocomplete="off" spellcheck="false" maxlength="15">
+                                <span class="error-msg" id="dateError"></span>
                             </div>
 
                             <div class="input-row">
@@ -144,5 +145,34 @@
     <!-- Cropper.js for photo editing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script src="script.js"></script>
+
+    <!-- In-App Browser Guide Overlay -->
+    <div id="browserGuide" class="guide-overlay">
+        <div class="guide-content">
+            <div class="guide-header">
+                <h3>Open in External Browser</h3>
+                <button id="closeGuide" class="close-guide">&times;</button>
+            </div>
+            <div class="guide-body">
+                <p>For the best experience (including downloading and sharing), please open this page in your system browser.</p>
+                <div class="guide-steps">
+                    <div class="step ios-guide">
+                        <span class="step-icon">Safari</span>
+                        <p>1. Tap the <strong>Share</strong> icon below<br>2. Select <strong>'Open in Safari'</strong></p>
+                    </div>
+                    <div class="step android-guide">
+                        <span class="step-icon">Chrome</span>
+                        <p>1. Tap the <strong>Three Dots (⋮)</strong><br>2. Select <strong>'Open in Browser'</strong></p>
+                    </div>
+                </div>
+            </div>
+            <button id="gotItBtn" class="primary-btn">I Understand</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toastMsg">Link copied to clipboard!</span>
+    </div>
 </body>
 </html>

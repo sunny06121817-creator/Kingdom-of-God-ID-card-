@@ -1,15 +1,158 @@
 document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('nameInput');
     const displaySignature = document.getElementById('displaySignature');
-    
     const dateInput = document.getElementById('dateInput');
     const photoWrapper = document.getElementById('photoWrapper');
     const photoInput = document.getElementById('photoInput');
-    
     const downloadBtn = document.getElementById('downloadBtn');
     const captureArea = document.getElementById('capture-area');
     const idCard = document.getElementById('id-card');
-    
+
+    const browserGuide = document.getElementById('browserGuide');
+    const closeGuide = document.getElementById('closeGuide');
+    const gotItBtn = document.getElementById('gotItBtn');
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    const dateError = document.getElementById('dateError');
+
+    /** 1. URL State Management **/
+    function updateURLParams() {
+        const params = new URLSearchParams(window.location.search);
+        if (nameInput.value.trim()) params.set('n', nameInput.value.trim());
+        else params.delete('n');
+        
+        if (dateInput.value.trim()) params.set('d', dateInput.value.trim());
+        else params.delete('d');
+
+        const newURL = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+        window.history.replaceState({}, '', newURL);
+    }
+
+    function loadURLParams() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('n')) {
+            nameInput.value = params.get('n');
+            displaySignature.textContent = nameInput.value;
+        }
+        if (params.has('d')) {
+            dateInput.value = params.get('d');
+        }
+    }
+
+    // Call on load
+    loadURLParams();
+
+    /** 2. Environment Detection **/
+    const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = () => /Android/i.test(navigator.userAgent);
+    const isInAppBrowser = () => {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        return (ua.indexOf('FBAN') > -1) || (ua.indexOf('FBAV') > -1) || (ua.indexOf('Instagram') > -1) || (ua.indexOf('KAKAOTALK') > -1) || (ua.indexOf('Telegram') > -1 || (ua.indexOf('Line') > -1));
+    };
+
+    // Show Guide if In-App
+    if (isInAppBrowser()) {
+        browserGuide.classList.add('show');
+    }
+
+    closeGuide.addEventListener('click', () => browserGuide.classList.remove('show'));
+    gotItBtn.addEventListener('click', () => browserGuide.classList.remove('show'));
+
+    /** 3. Dynamic Scaling for Mobile **/
+    function adjustCardScale() {
+        // app-container is used for width because it takes full window width minus padding
+        const containerWidth = document.body.clientWidth;
+        const cardOriginalWidth = 720; // Width from CSS
+        const padding = 32; // Total horizontal padding (from body padding: 1rem * 2)
+        
+        let scale = (containerWidth - padding) / cardOriginalWidth;
+        if (scale > 1) scale = 1;
+        
+        document.documentElement.style.setProperty('--card-scale', scale);
+    }
+
+    window.addEventListener('resize', adjustCardScale);
+    adjustCardScale(); // Initial call
+
+    /** 3. Validation Logic **/
+    function validateDate(dateString) {
+        if (!dateString) return { valid: true }; // Allow empty until submission if needed, but we'll check on blur
+
+        // Format check: MM/DD/YYYY
+        const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+        if (!regex.test(dateString)) {
+            return { valid: false, message: 'Format must be MM/DD/YYYY.' };
+        }
+
+        const [mm, dd, yyyy] = dateString.split('/').map(Number);
+        const date = new Date(yyyy, mm - 1, dd);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Reality check (e.g. Feb 30)
+        if (date.getFullYear() !== yyyy || date.getMonth() !== mm - 1 || date.getDate() !== dd) {
+            return { valid: false, message: 'This date does not exist on the calendar.' };
+        }
+
+        // Future check
+        if (date > today) {
+            return { valid: false, message: 'Date cannot be in the future.' };
+        }
+
+        // Age check (120 years)
+        const minDate = new Date();
+        minDate.setFullYear(today.getFullYear() - 120);
+        if (date < minDate) {
+            return { valid: false, message: 'Age cannot exceed 120 years.' };
+        }
+
+        return { valid: true };
+    }
+
+    function checkDateValidity() {
+        const result = validateDate(dateInput.value);
+        if (!result.valid) {
+            dateInput.classList.add('invalid');
+            dateError.textContent = result.message;
+            dateError.classList.add('show');
+            return false;
+        } else {
+            dateInput.classList.remove('invalid');
+            dateError.classList.remove('show');
+            return true;
+        }
+    }
+
+    dateInput.addEventListener('blur', checkDateValidity);
+
+    /** 4. UI Helpers **/
+    function showToast(message) {
+        toastMsg.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    async function copyToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            showToast('Link copied to clipboard! 📋');
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            // Fallback for older browsers or restricted environments
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Link copied to clipboard! 📋');
+            } catch (e) {
+                alert('Please copy the URL manually.');
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
     // Auto-format date input to YYYY/MM/DD
     dateInput.addEventListener('input', (e) => {
         let value = e.target.value.replace(/[^0-9]/g, '');
@@ -21,15 +164,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         e.target.value = value;
+        updateURLParams();
     });
     
     // Update real-time signature
     nameInput.addEventListener('input', (e) => {
         displaySignature.textContent = e.target.value;
+        updateURLParams();
     });
 
     // Provide default empty signature
-    displaySignature.textContent = '';
+    if (!nameInput.value) displaySignature.textContent = '';
 
     // Image Cropper Logic
     let cropper;
@@ -110,6 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return null;
         }
 
+        if (!checkDateValidity()) {
+            dateInput.focus();
+            return null;
+        }
+
         const originalText = btnElement.innerHTML;
         btnElement.innerHTML = 'Processing...';
         btnElement.disabled = true;
@@ -177,23 +327,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const canvas = await generateCardImage(shareBtn);
         if (!canvas) return;
 
+        const shareTitle = 'Kingdom of God ID Card';
+        const shareText = 'Check out my Kingdom of God Identity Card! ✨';
+        const shareUrl = window.location.href;
+
         try {
             const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
             const file = new File([blob], 'Kingdom_ID_Card.png', { type: 'image/png' });
 
-            if (navigator.share && navigator.canShare({ files: [file] })) {
+            // Attempt 1: Full Image Share (Web Share API Level 2)
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: 'Kingdom ID Card',
-                    text: 'Checkout my Kingdom ID Card!'
+                    title: shareTitle,
+                    text: shareText
                 });
-            } else {
-                alert('Your browser does not support direct image sharing. Please download the card and share it manually.');
+            } 
+            // Attempt 2: Text/Link Share (Web Share API Level 1)
+            else if (navigator.share) {
+                await navigator.share({
+                    title: shareTitle,
+                    text: shareText,
+                    url: shareUrl
+                });
+            }
+            // Attempt 3: Clipboard Fallback
+            else {
+                await copyToClipboard(shareUrl);
             }
         } catch (err) {
+            // AbortError is common when user cancels the share sheet
             if (err.name !== 'AbortError') {
-                console.error('Share failed:', err);
-                alert('Sharing failed. Please try downloading instead.');
+                console.error('Sharing attempt failed:', err);
+                // Last resort: Copy link
+                await copyToClipboard(shareUrl);
             }
         }
     });
