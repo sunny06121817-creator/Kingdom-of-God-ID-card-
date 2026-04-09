@@ -521,15 +521,22 @@ body {
     }
 
     .button-group {
-        flex-direction: column;
-        width: 100%;
+        flex-direction: row;
+        justify-content: center;
         gap: 0.8rem;
+        width: 100%;
         padding-bottom: 2rem;
     }
     .download-btn, .share-btn {
-        width: 100%;
-        justify-content: center;
-        padding: 1rem;
+        width: auto;
+        padding: 0.8rem 1.2rem;
+        font-size: 0.85rem;
+        gap: 0.4rem;
+        border-radius: 20px;
+    }
+    .download-btn svg, .share-btn svg {
+        width: 16px;
+        height: 16px;
     }
 }
 
