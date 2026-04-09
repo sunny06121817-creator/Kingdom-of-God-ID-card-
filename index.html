@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kingdom of God ID Card</title>
+    <!-- Modern Trendy Fonts: purely Inter and Great Vibes for signature -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Great+Vibes&family=Libre+Barcode+128&display=swap" rel="stylesheet">
+    <!-- Cropper.js for photo editing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <div class="instructions">
+            <p>Click the lines to type directly into the ID card ✍️<br>Click the placeholder to upload your photo 📸</p>
+        </div>
+
+        <div id="capture-area" class="id-card-wrapper">
+            <div id="id-card" class="id-card">
+                
+                <div class="card-security-pattern"></div>
+
+                <!-- Modern Clean Header -->
+                <header class="badge-header">
+                    <div class="badge-brand">
+                        <div class="modern-emblem">
+                            <!-- Trendy geometric crown svg -->
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20"/><path d="m2 4 4.5 8L12 3l5.5 9L22 4v12H2Z"/></svg>
+                        </div>
+                        <div class="brand-text">
+                            <h1>KINGDOM OF GOD</h1>
+                            <h2>CITIZEN IDENTITY CARD</h2>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <div class="barcode">GODISLOVE777</div>
+                    </div>
+                </header>
+
+                <main class="card-content">
+                    <div class="photo-column">
+                        <div class="photo-wrapper" id="photoWrapper">
+                            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                            <div class="photo-hint" id="photoHint">
+                                <div>+</div>
+                                <span>Upload Photo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-column">
+                        <div class="info-grid">
+                            <div class="input-row full">
+                                <label>SURNAME / GIVEN NAMES</label>
+                                <input type="text" id="nameInput" placeholder="Enter full name" autocomplete="off" spellcheck="false" maxlength="30">
+                            </div>
+
+                            <div class="input-row">
+                                <label>REBIRTH DATE</label>
+                                <input type="text" id="dateInput" placeholder="MM/DD/YYYY" autocomplete="off" spellcheck="false" maxlength="15">
+                            </div>
+
+                            <div class="input-row">
+                                <label>ID NUMBER</label>
+                                <div class="static-val highlight">KOG-777-12-ETERNAL</div>
+                            </div>
+
+                            <div class="input-row">
+                                <label>ADDRESS</label>
+                                <div class="static-val">New Jerusalem</div>
+                            </div>
+
+                            <div class="input-row">
+                                <label>EXPIRATION</label>
+                                <div class="static-val text-accent">Eternal</div>
+                            </div>
+                        </div>
+
+                        <div class="cert-block">
+                            <div class="stamp-container">
+                                <div class="stamp">
+                                    JESUS CHRIST
+                                </div>
+                                <div class="cert-text">
+                                    This is to certify that the individual named above is a citizen of the Kingdom of God, redeemed and granted eternal life through grace.
+                                </div>
+                            </div>
+                            
+                            <div class="signatures">
+                                <div class="sig-box">
+                                    <div class="cursive-text" id="displaySignature"></div>
+                                    <div class="sig-line"></div>
+                                    <div class="sig-label">HOLDER'S SIGNATURE</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="downloadBtn" class="download-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Download
+            </button>
+            <button id="shareBtn" class="share-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+                Share
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Photo Crop Modal -->
+    <div id="cropModal" class="modal">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h3>Edit Your Photo</h3>
+                <button id="closeModal" class="close-icon">&times;</button>
+            </header>
+            <div class="crop-container">
+                <img id="cropImage" src="" alt="To be cropped">
+            </div>
+            <footer class="modal-footer">
+                <div class="crop-controls">
+                    <button id="rotateLeft" title="Rotate Left">↺</button>
+                    <button id="rotateRight" title="Rotate Right">↻</button>
+                </div>
+                <div class="modal-actions">
+                    <button id="cancelCrop" class="secondary-btn">Cancel</button>
+                    <button id="applyCrop" class="primary-btn">Apply & Insert</button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- html2canvas exactly to capture ID card layout to PNG -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Cropper.js for photo editing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
