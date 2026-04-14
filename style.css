@@ -309,6 +309,8 @@ body {
     align-items: center;
     cursor: pointer;
     position: relative;
+    background: #ffffff;
+    border-radius: 8px;
 }
 
 .cursive-text {

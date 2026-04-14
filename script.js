@@ -532,7 +532,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 scale: 3, 
                 backgroundColor: null,
                 logging: false,
-                useCORS: true
+                useCORS: true,
+                onclone: (clonedDoc) => {
+                    const clonedCard = clonedDoc.getElementById('id-card');
+                    
+                    // 1. Fix Stamp Distortion: Remove animation and fix transform center
+                    const stamp = clonedCard.querySelector('.stamp');
+                    if (stamp) {
+                        stamp.style.animation = 'none';
+                        stamp.style.opacity = '1';
+                        stamp.style.visibility = 'visible';
+                        // Use a more stable transform for high-res capture
+                        // We avoid translateX(-50%) which often stretches in html2canvas
+                        stamp.style.transform = 'rotate(-12deg) scale(1)';
+                        // Re-center by adjusting left since we removed translateX(-50%)
+                        // The original left was 45%, but that was for the center point.
+                        // We'll set it to a fixed position that looks right in the capture.
+                        stamp.style.left = '20%'; 
+                    }
+
+                    // 2. Fix Signature: Remove shimmer effect (background-clip: text is not supported)
+                    const sigBox = clonedCard.querySelector('.sig-box');
+                    if (sigBox) {
+                        sigBox.classList.remove('sig-shimmer');
+                        // Ensure signature text/canvas is solid navy
+                        const cursive = sigBox.querySelector('.cursive-text');
+                        if (cursive) {
+                            cursive.style.background = 'none';
+                            cursive.style.webkitTextFillColor = 'var(--navy-main)';
+                            cursive.style.color = 'var(--navy-main)';
+                        }
+                        const sigCanvas = sigBox.querySelector('.sig-canvas-display');
+                        if (sigCanvas) {
+                            sigCanvas.style.background = 'none';
+                            sigCanvas.style.filter = 'none';
+                        }
+                    }
+                }
             });
             return canvas;
         } catch (error) {
